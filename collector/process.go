@@ -43,7 +43,7 @@ func NewProcessCollector() (Collector, error) {
 		),
 		CPUTimeTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "cpu_time_total"),
-			"Returns elapsed time that all of the threads of this process used the processor to execute instructions in 100 nanoseconds ticks by mode (privileged, user). An instruction is the basic unit of execution in a computer, a thread is the object that executes instructions, and a process is the object created when a program is run. Code executed to handle some hardware interrupts and trap conditions is included in this count.",
+			"Returns elapsed time that all of the threads of this process used the processor to execute instructions by mode (privileged, user). An instruction is the basic unit of execution in a computer, a thread is the object that executes instructions, and a process is the object created when a program is run. Code executed to handle some hardware interrupts and trap conditions is included in this count.",
 			[]string{"process", "process_id", "creating_process_id", "mode"},
 			nil,
 		),
@@ -198,7 +198,7 @@ func (c *ProcessCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Des
 		ch <- prometheus.MustNewConstMetric(
 			c.CPUTimeTotal,
 			prometheus.CounterValue,
-			float64(process.PercentPrivilegedTime),
+			float64(process.PercentPrivilegedTime)*ticksToSecondsScaleFactor,
 			process.Name,
 			pid,
 			cpid,
@@ -208,7 +208,7 @@ func (c *ProcessCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Des
 		ch <- prometheus.MustNewConstMetric(
 			c.CPUTimeTotal,
 			prometheus.CounterValue,
-			float64(process.PercentUserTime),
+			float64(process.PercentUserTime)*ticksToSecondsScaleFactor,
 			process.Name,
 			pid,
 			cpid,
